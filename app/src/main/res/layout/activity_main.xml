@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+
+    <ImageView
+        android:id="@+id/imgAvatar"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:layout_marginTop="100dp"
+        android:background="#70CDCACA"
+        android:scaleType="fitXY"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.495"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:textStyle="bold"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="20dp"
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cloud"
+        android:textSize="10sp"
+        app:layout_constraintBottom_toTopOf="@+id/cardView"
+        app:layout_constraintEnd_toStartOf="@+id/recyclerViewText"
+        app:layout_constraintHorizontal_bias="0.529"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/recyclerViewText"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <androidx.recyclerview.widget.RecyclerView
+       android:layout_marginEnd="-25dp"
+        android:id="@+id/recyclerViewText"
+        android:layout_width="270dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="48dp"
+        android:background="@color/white"
+        android:orientation="horizontal"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imgAvatar" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardView"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginBottom="20dp"
+        android:background="#70090909"
+        app:cardCornerRadius="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/recyclerView"
+        app:layout_constraintHorizontal_bias="0.238"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/recyclerViewText"
+        app:layout_constraintVertical_bias="0.117">
+
+        <ImageButton
+            android:id="@+id/button"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="#99C6C2C2"
+            android:src="@drawable/slash"
+            android:text="Button"
+            app:layout_constraintTop_toBottomOf="@+id/imgAvatar"
+            app:layout_constraintVertical_bias="0.017" />
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="35dp"
+            android:text="None"
+            android:textSize="10dp" />
+    </androidx.cardview.widget.CardView>
+
+    <androidx.recyclerview.widget.RecyclerView
+android:layout_marginStart="20dp"
+        android:id="@+id/recyclerView"
+        android:layout_width="260dp"
+        android:layout_height="60dp"
+        android:background="@color/white"
+        android:orientation="horizontal"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintEnd_toEndOf="parent"
+
+        app:layout_constraintHorizontal_bias="1.0"
+
+        app:layout_constraintTop_toBottomOf="@+id/recyclerViewText" />
+</androidx.constraintlayout.widget.ConstraintLayout>
