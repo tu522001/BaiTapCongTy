@@ -2,6 +2,7 @@ package com.example.b1
 
 import android.graphics.Color
 import android.graphics.PorterDuff
+import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -11,8 +12,10 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.b1.databinding.ActivityMainBinding
+
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -20,16 +23,17 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 
-class MainActivity : AppCompatActivity(), ImageAdapter.OnImageScrollListener {
+class MainActivity : AppCompatActivity() {
 
     private lateinit var imageAdapter: ImageAdapter
     private lateinit var textAdapter: TextAdapter
     private lateinit var binding: ActivityMainBinding
+    private lateinit var layoutManager: LinearLayoutManager
 
     private var photoFramesList = mutableListOf<PhotoFramesX>()
     private var images = mutableListOf<Image>()
     private var defineXList = mutableListOf<DefineX>()
-    private lateinit var listText: MutableList<Contents>
+//    private lateinit var listText: MutableList<Contents>
 
 
     companion object {
@@ -44,12 +48,37 @@ class MainActivity : AppCompatActivity(), ImageAdapter.OnImageScrollListener {
         // Sử dụng biến binding để truy cập các thành phần trong layout
         setContentView(binding.root)
 
-        imageAdapter = ImageAdapter(images, )
+        imageAdapter = ImageAdapter(images)
         binding.recyclerView.adapter = imageAdapter
 
-        listText = Contents.getMock().toMutableList()
-        textAdapter = TextAdapter(listText)
+//        listText = Contents.getMock().toMutableList()
+        textAdapter = TextAdapter(photoFramesList)
         binding.recyclerViewText.adapter = textAdapter
+
+        layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        binding.recyclerView.layoutManager = layoutManager
+
+
+
+        binding.recyclerView.addOnScrollListener(object: RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                if(newState == RecyclerView.SCROLL_STATE_IDLE) {
+//                    val index = (layoutManager.findFirstVisibleItemPosition)
+                    //use this index for any operation you want to perform on the item visible on screen. eg. log(arrayList[index])
+                }
+            }
+
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+//                val index = layoutManager.findFirstVisibleItemPosition()
+//                Log.d("HJK", " VI TRI ANH : "+index)
+                scrollToRelativeCategory()
+            }
+        })
+
+
+
+
 
 
         imageAdapter.setOnItemClick(object : ImageAdapter.OnItemListener {
@@ -93,6 +122,8 @@ class MainActivity : AppCompatActivity(), ImageAdapter.OnImageScrollListener {
                                 photoFrames.openPackageName,
                                 photoFrames.totalImage
                             )
+
+
                         )
 
                         val defineXDTOList = photoFrames.defines ?: emptyList()
@@ -107,6 +138,7 @@ class MainActivity : AppCompatActivity(), ImageAdapter.OnImageScrollListener {
                                 )
                             )
                             Log.d("AAA", "end :" + defineXDTO.end + " start : " + defineXDTO.start)
+
                         }
 
                     }
@@ -115,44 +147,66 @@ class MainActivity : AppCompatActivity(), ImageAdapter.OnImageScrollListener {
                     }
                     images.forEach {
                         Log.d("checkImage", "onResponse: $it")
+
+
+//                        fun getVisibleItem(recyclerView : RecyclerView) {
+//                            recyclerView.addOnScrollListener(object: RecyclerView.OnScrollListener() {
+//                                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+//                                    if(newState == RecyclerView.SCROLL_STATE_IDLE) {
+//                                        val index = (recyclerView.layoutManager.findFirstVisibleItemPosition
+//                                        //use this index for any operation you want to perform on the item visible on screen. eg. log(arrayList[index])
+//                                    }
+//                                }
+//                            })
+//                        }
+
+
+//                        binding.recyclerView.addOnScrollListener(object :
+//                            RecyclerView.OnScrollListener() {
+//                            override fun onScrollStateChanged(
+//                                recyclerView: RecyclerView,
+//                                newState: Int
+//                            ) {
+//                                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+//                                    val index = (recyclerView.layoutManager.fi)
+//                                    //use this index for any operation you want to perform on the item visible on screen. eg. log(arrayList[index])
+//                                }
+//                            }
+//                        })
+
                     }
+                    Log.d("fffff", "end image : " + photoFramesList.toString())
+
 
                     imageAdapter.notifyDataSetChanged()
 
+                    textAdapter.notifyDataSetChanged()
+
                 }
+
+
+
             }
 
             override fun onFailure(call: Call<ApiResponse>, t: Throwable) {
                 Log.d("AAA", "exception : ${t.message}")
             }
         })
-
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
-    override fun onImageScrolled() {
-        val firstVisiblePosition =
-            (binding.recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
-        val lastVisiblePosition =
-            (binding.recyclerView.layoutManager as LinearLayoutManager).findLastVisibleItemPosition()
-
-        // Count the number of images for each text
-        val imageCounts = mutableMapOf<String, Int>()
-        for (i in firstVisiblePosition..lastVisiblePosition) {
-            val text = listText[i].theme
-            imageCounts[text] = imageCounts.getOrDefault(text, 0) + 1
-        }
-
-        // Determine which texts should be bold
-        val boldTexts = mutableSetOf<String>()
-        for ((text, count) in imageCounts) {
-            if (count >= 10) {
-                boldTexts.add(text)
+    fun scrollToRelativeCategory() {
+        val lastVisibleFrame = layoutManager.findLastVisibleItemPosition()
+        if (lastVisibleFrame > -1) {
+            val image: Image = images[lastVisibleFrame]
+            photoFramesList.forEach {
+                if (it.folder.equals(image.folder)) {
+                    binding.recyclerViewText.smoothScrollToPosition(
+                        photoFramesList.indexOf(it)
+                    )
+                    textAdapter.selectedPosition = (photoFramesList.indexOf(it))
+                }
             }
         }
-
-        // Update TextAdapter with bold texts
-        textAdapter.updateBoldTexts(boldTexts)
     }
 
 }

@@ -13,19 +13,13 @@ data class PhotoFramesX(
 ) {
     fun toImage() : List<Image> {
         val images = mutableListOf<Image>()
-//        images.add(
-//            Image(
-//                url = "https://mystoragetm.s3.ap-southeast-1.amazonaws.com/Frames/ClassicFrames/" + folder + "/$cover",
-//                isFirst = true
-//            )
-//        )
 
         defines.forEach { defineX ->
             for (i in defineX.start until defineX.end) {
                 images.add(
                     Image(
                         url = "https://mystoragetm.s3.ap-southeast-1.amazonaws.com/Frames/ClassicFrames/" + folder + "/" + folder + "_frame_" + i+ ".png",
-                        isEnd = i == defines.size - 1
+                        isEnd = i == defines.size - 1, folder = folder
                     )
                 )
             }
@@ -35,7 +29,4 @@ data class PhotoFramesX(
         return images
     }
 
-    fun openImage(){
-
-    }
 }
