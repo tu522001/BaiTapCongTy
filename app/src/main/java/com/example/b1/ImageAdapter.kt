@@ -3,6 +3,7 @@ package com.example.b1
 import android.content.Context
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -13,7 +14,6 @@ class ImageAdapter(var listImages: MutableList<Image>) :
     RecyclerView.Adapter<ImageAdapter.ImageViewHolder>() {
 
     private var urlList = mutableListOf<String>()
-    private lateinit var listener: OnImageScrollListener
     private lateinit var onItemListener: OnItemListener
     override fun getItemViewType(position: Int): Int {
         return position
@@ -27,7 +27,8 @@ class ImageAdapter(var listImages: MutableList<Image>) :
         fun bind(image: Image) {
             Glide.with(itembinding.root).load(image.url).into(itembinding.imageView)
 
-
+// Ẩn imageDownload
+//           itembinding.dowload.visibility = View.GONE
 
             Log.d("III", "itembinding.textView2.text = image.url : " + image.url)
 //            Log.d("III", "%6 : " + listImages.size % 6)
@@ -60,6 +61,7 @@ class ImageAdapter(var listImages: MutableList<Image>) :
 
             itembinding.imageView.setOnClickListener {
                 onItemListener.onClick(adapterPosition, listImages[adapterPosition].url)
+                Log.d("QQQQ","Vao : "+adapterPosition)
             }
 
 
@@ -85,7 +87,7 @@ class ImageAdapter(var listImages: MutableList<Image>) :
 
     override fun onBindViewHolder(holder: ImageAdapter.ImageViewHolder, position: Int) {
         holder.bind(listImages[position])
-//        val itemText = listPhotoFramesX[position]
+        val itemText = listImages[position]
 //        holder.textView.text =
 //
 //        val itemText = listImages[position]
@@ -106,18 +108,18 @@ class ImageAdapter(var listImages: MutableList<Image>) :
         }
 
 
-//// Add image URL to urlList
-//        listImages.add(image.url)
-//
-//        // Gán Interface cho ViewHolder của AdapterOne
-//        holder.itemView.setOnClickListener {
-//            onItemListener.onClick(position, listImages[position].url)
-//        }
+        if (itemText.downloaded) {
+            holder.itembinding.dowload.visibility = View.GONE
+        } else {
+            holder.itembinding.dowload.visibility = View.VISIBLE
+        }
 
-//        if (position == listImages.size - 1) {
-//            listener.onImageScrolled()
-//        }
-
+        holder.itembinding.dowload.setOnClickListener {
+            // Code tải ảnh về
+            // Sau khi tải xong, đổi trạng thái của ảnh và cập nhật UI
+            itemText.downloaded = true
+            holder.itembinding.dowload.visibility = View.GONE
+        }
 
     }
 
@@ -134,13 +136,5 @@ class ImageAdapter(var listImages: MutableList<Image>) :
     interface OnItemListener {
         fun onClick(position: Int, url: String)
     }
-
-    interface OnImageScrollListener {
-        fun onImageScrolled()
-    }
-
-//    interface SearchUrl{
-//        fun onSearch_URL(position: Int,)
-//    }
 
 }
