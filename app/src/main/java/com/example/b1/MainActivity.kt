@@ -20,7 +20,12 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.bumptech.glide.request.RequestOptions
 import com.example.b1.databinding.ActivityMainBinding
+import jp.wasabeef.glide.transformations.BlurTransformation
+import jp.wasabeef.glide.transformations.ColorFilterTransformation
 
 import retrofit2.Call
 import retrofit2.Callback
@@ -29,19 +34,15 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
 
-
 class MainActivity : AppCompatActivity() {
 
     private lateinit var imageAdapter: ImageAdapter
     private lateinit var textAdapter: TextAdapter
     private lateinit var binding: ActivityMainBinding
     private lateinit var layoutManager: LinearLayoutManager
-
     private var photoFramesList = mutableListOf<PhotoFramesX>()
     private var images = mutableListOf<Image>()
     private var defineXList = mutableListOf<DefineX>()
-//    private lateinit var listText: MutableList<Contents>
-
 
     companion object {
         const val BASE_URL = "https://mystoragetm.s3.ap-southeast-1.amazonaws.com/"
@@ -55,114 +56,39 @@ class MainActivity : AppCompatActivity() {
         // Sử dụng biến binding để truy cập các thành phần trong layout
         setContentView(binding.root)
 
-        imageAdapter = ImageAdapter(images)
+        imageAdapter = ImageAdapter(this,images)
         binding.recyclerView.adapter = imageAdapter
 
-//        listText = Contents.getMock().toMutableList()
         textAdapter = TextAdapter(photoFramesList)
         binding.recyclerViewText.adapter = textAdapter
 
         layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         binding.recyclerView.layoutManager = layoutManager
 
-
-
         binding.recyclerView.addOnScrollListener(object: RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 if(newState == RecyclerView.SCROLL_STATE_IDLE) {
-//                    val index = (layoutManager.findFirstVisibleItemPosition)
-                    //use this index for any operation you want to perform on the item visible on screen. eg. log(arrayList[index])
+
                 }
             }
 
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
-//                val index = layoutManager.findFirstVisibleItemPosition()
-//                Log.d("HJK", " VI TRI ANH : "+index)
                 scrollToRelativeCategory()
             }
         })
 
-
-
-
-
-
-//        imageAdapter.setOnItemClick(object : ImageAdapter.OnItemListener {
-//            override fun onClick(position: Int, url: String) {
-//                Log.d("YYY", "position : " + position + ", URL : " + url)
-//                Glide.with(this@MainActivity).load(images[position].url).into(binding.imgAvatar)
-//
-//
-////                val url = "http://example.com/file.mp3" // Đường dẫn URL tới tệp cần tải xuống
-//                val fileName = "file.png" // Tên tệp sẽ được lưu trữ trên thiết bị
-//
-//                val request = DownloadManager.Request(Uri.parse(url))
-//                    .setTitle(fileName)
-//                    .setDescription("Downloading")
-//                    .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
-//                    .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
-//
-//                val downloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-//                val downloadId = downloadManager.enqueue(request)
-//
-//
-//
-//                Log.d("ASSA","downloadId : "+downloadId)
-//            }
-//        })
-
-        val downloadedImages = HashMap<String, Boolean>()
-
         imageAdapter.setOnItemClick(object : ImageAdapter.OnItemListener {
             override fun onClick(position: Int, url: String) {
-                Log.d("YYY", "position : " + position + ", URL : " + url)
+                Log.d("YYY", "position MainActivity: " + position + ", URL : " + url)
                 Glide.with(this@MainActivity).load(images[position].url).into(binding.imgAvatar)
 
-                val fileName = "file.png"
-//                val file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), fileName)
-
-                if (downloadedImages[url] == true) {
-                    Toast.makeText(this@MainActivity, "Hình ảnh này đã được tải về rồi", Toast.LENGTH_SHORT).show()
-                    binding
-                } else {
-                    val downloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-                    val request = DownloadManager.Request(Uri.parse(url))
-                        .setTitle(fileName)
-                        .setDescription("Downloading")
-                        .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
-                        .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
-                    val downloadId = downloadManager.enqueue(request)
-
-                    // Lưu trạng thái của ảnh là chưa tải về
-                    downloadedImages[url] = false
-
-                    // Kiểm tra xem tệp đã được tải về hay chưa
-                    val query = DownloadManager.Query()
-                        .setFilterById(downloadId)
-                    var cursor = downloadManager.query(query)
-                    if (cursor != null && cursor.moveToFirst()) {
-                        val columnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)
-                        if (columnIndex >= 0) {
-                            val status = cursor.getInt(columnIndex)
-                            if (status == DownloadManager.STATUS_SUCCESSFUL) {
-                                // Lưu trạng thái của ảnh là đã tải về
-                                downloadedImages[url] = true
-                                Toast.makeText(this@MainActivity, "Đã tải về hình ảnh", Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                    }
-                    cursor?.close()
-                }
             }
         })
 
-
         binding.button.setOnClickListener {
             binding.imgAvatar.setImageResource(R.drawable.img)
-
         }
-
 
         val retrofit = Retrofit.Builder()
             .baseUrl(BASE_URL)
@@ -189,8 +115,6 @@ class MainActivity : AppCompatActivity() {
                                 photoFrames.openPackageName,
                                 photoFrames.totalImage
                             )
-
-
                         )
 
                         val defineXDTOList = photoFrames.defines ?: emptyList()
@@ -205,28 +129,19 @@ class MainActivity : AppCompatActivity() {
                                 )
                             )
                             Log.d("AAA", "end :" + defineXDTO.end + " start : " + defineXDTO.start)
-
                         }
-
                     }
                     photoFramesList.forEach { photoFrame ->
                         images.addAll(photoFrame.toImage())
                     }
                     images.forEach {
                         Log.d("checkImage", "onResponse: $it")
-
                     }
                     Log.d("fffff", "end image : " + photoFramesList.toString())
 
-
                     imageAdapter.notifyDataSetChanged()
-
                     textAdapter.notifyDataSetChanged()
-
                 }
-
-
-
             }
 
             override fun onFailure(call: Call<ApiResponse>, t: Throwable) {
