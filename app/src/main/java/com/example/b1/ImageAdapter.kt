@@ -68,9 +68,6 @@ class ImageAdapter(var context: Context, var listImages: MutableList<Image>) :
             Glide.with(itembinding.root).load(image.url).into(itembinding.imgcCoverPhoto)
             itembinding.imageViewload.visibility = View.GONE
 
-
-
-
             Log.d("III", "itembinding.textView2.text = image.url : " + image.url)
 
 //            // Thiết lập ShapeAppearanceModel cho MaterialShapeDrawable
