@@ -1,7 +1,10 @@
 package com.example.b1
 
 import android.app.DownloadManager
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.database.Cursor
 import android.graphics.Color
 import android.graphics.PorterDuff
@@ -34,7 +37,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), ImageAdapter.OnDownloadClickListener {
 
     private lateinit var imageAdapter: ImageAdapter
     private lateinit var textAdapter: TextAdapter
@@ -43,6 +46,8 @@ class MainActivity : AppCompatActivity() {
     private var photoFramesList = mutableListOf<PhotoFramesX>()
     private var images = mutableListOf<Image>()
     private var defineXList = mutableListOf<DefineX>()
+    private var downloadID: Long = 0L
+    private lateinit var imageItem : Image
 
     companion object {
         const val BASE_URL = "https://mystoragetm.s3.ap-southeast-1.amazonaws.com/"
@@ -56,7 +61,7 @@ class MainActivity : AppCompatActivity() {
         // Sử dụng biến binding để truy cập các thành phần trong layout
         setContentView(binding.root)
 
-        imageAdapter = ImageAdapter(this,images)
+        imageAdapter = ImageAdapter(this, images)
         binding.recyclerView.adapter = imageAdapter
 
         textAdapter = TextAdapter(photoFramesList)
@@ -65,9 +70,9 @@ class MainActivity : AppCompatActivity() {
         layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         binding.recyclerView.layoutManager = layoutManager
 
-        binding.recyclerView.addOnScrollListener(object: RecyclerView.OnScrollListener() {
+        binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                if(newState == RecyclerView.SCROLL_STATE_IDLE) {
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
 
                 }
             }
@@ -82,9 +87,20 @@ class MainActivity : AppCompatActivity() {
             override fun onClick(position: Int, url: String) {
                 Log.d("YYY", "position MainActivity: " + position + ", URL : " + url)
                 Glide.with(this@MainActivity).load(images[position].url).into(binding.imgAvatar)
-
+//                imageItem =
             }
         })
+
+        imageAdapter.setDownloadClick(object : ImageAdapter.OnDownloadClickListener {
+            override fun onDownloadClick(downloadId: Long) {
+                Log.d("FGH", "downloadId MainActivity: $downloadId")
+                // Xử lý dữ liệu downloadId ở đây
+                downloadID = downloadId
+            }
+
+        })
+
+
 
         binding.button.setOnClickListener {
             binding.imgAvatar.setImageResource(R.drawable.img)
@@ -165,4 +181,49 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private val downloadCompleteReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            val action = intent?.action
+            if (action == DownloadManager.ACTION_DOWNLOAD_COMPLETE) {
+                // Lấy ID của download
+                val downloadId = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
+                if (downloadId != -1L) {
+                    // Xử lý khi download hoàn thành
+                    // Ví dụ: hiển thị thông báo hoặc mở file đã tải về
+                }
+            }
+        }
+    }
+
+    private val onCompletedDownloadReceiver = object : BroadcastReceiver() {
+        override fun onReceive(p0: Context?, intent: Intent?) {
+            val id = intent?.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
+//            if (downloadID == id) {
+////                displayFrame(photoFrame)
+////                photoFrameAdapter.notifyDataSetChanged()
+            if (downloadID == id) {
+                displayImage()
+//                imageItem =
+            }
+        }
+    }
+
+    private fun displayImage() {
+        TODO("Not yet implemented")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val intentFilter = IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
+        registerReceiver(downloadCompleteReceiver, intentFilter)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        unregisterReceiver(downloadCompleteReceiver)
+    }
+
+    override fun onDownloadClick(downloadId: Long) {
+
+    }
 }

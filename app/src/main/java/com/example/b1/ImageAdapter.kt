@@ -34,6 +34,7 @@ import java.io.File
 class ImageAdapter(var context: Context, var listImages: MutableList<Image>) :
     RecyclerView.Adapter<ImageAdapter.ImageViewHolder>() {
 
+    private lateinit var listener: OnDownloadClickListener
     //    val downloadedImages = HashMap<String, Boolean>()
     private var selectedPosition = -1
     private val downloadedImages = mutableListOf<DownloadedImage>()
@@ -131,13 +132,14 @@ class ImageAdapter(var context: Context, var listImages: MutableList<Image>) :
             if (downloadedImage != null) {
                 // Đã tải về, đặt hình từ file
                 Glide.with(context).load(File(downloadedImage.path)).into(itembinding.dowload)
-                itembinding.dowload.visibility = View.GONE
+                itembinding.dowload.visibility = View.VISIBLE
             } else {
                 // Chưa tải về, đặt hình từ URL và tải về khi nhấp chuột
                 Glide.with(context).load(image.url).into(itembinding.imgcCoverPhoto)
-                itembinding.dowload.setOnClickListener {
+
+                itembinding.imgcCoverPhoto.setOnClickListener {
                     // ẩn hình download đi
-                    itembinding.dowload.visibility = View.GONE
+                    itembinding.dowload.visibility = View.VISIBLE
                     // Tải hình về
                     val downloadManager =
                         context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
@@ -151,7 +153,12 @@ class ImageAdapter(var context: Context, var listImages: MutableList<Image>) :
                             image.url
                         )
 
+//                    val downloadId = downloadManager.enqueue(request)
+//                    Log.d("FGH","downloadId : "+downloadId)
+
                     val downloadId = downloadManager.enqueue(request)
+                    listener.onDownloadClick(downloadId)
+
 
                     // Thêm hình đã tải vào danh sách
                     val downloadedImage = DownloadedImage(
@@ -210,8 +217,18 @@ class ImageAdapter(var context: Context, var listImages: MutableList<Image>) :
         this.onItemListener = onItemListener
     }
 
+    fun setDownloadClick(listener: OnDownloadClickListener) {
+        this.listener = listener
+    }
+
     interface OnItemListener {
         fun onClick(position: Int, url: String)
     }
+
+    interface OnDownloadClickListener {
+        fun onDownloadClick(downloadId: Long)
+    }
+
+
 
 }
