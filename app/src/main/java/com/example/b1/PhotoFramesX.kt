@@ -19,7 +19,7 @@ data class PhotoFramesX(
                 images.add(
                     Image(
                         url = "https://mystoragetm.s3.ap-southeast-1.amazonaws.com/Frames/ClassicFrames/" + folder + "/" + folder + "_frame_" + i+ ".png",
-                        isEnd = i == defines.size - 1, folder = folder
+                        isEnd = i == defines.size - 1, folder = folder, fileName =  folder + "_frame_" + i+ ".png"
                     )
                 )
             }
@@ -28,5 +28,6 @@ data class PhotoFramesX(
 
         return images
     }
+
 
 }

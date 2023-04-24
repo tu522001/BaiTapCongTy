@@ -35,6 +35,7 @@ class ImageAdapter(var context: Context, var listImages: MutableList<Image>) :
     RecyclerView.Adapter<ImageAdapter.ImageViewHolder>() {
 
     private lateinit var listener: OnDownloadClickListener
+
     //    val downloadedImages = HashMap<String, Boolean>()
     private var selectedPosition = -1
     private val downloadedImages = mutableListOf<DownloadedImage>()
@@ -45,18 +46,18 @@ class ImageAdapter(var context: Context, var listImages: MutableList<Image>) :
         return position
     }
 
-    init {
-        // Tải hình ảnh đã tải xuống từ SharedPreferences
-        val prefs = context.getSharedPreferences("my_prefs", Context.MODE_PRIVATE)
-        val downloadedImagesJson = prefs.getString("downloaded_images", "")
-        if (downloadedImagesJson != null && downloadedImagesJson.isNotEmpty()) {
-            downloadedImages.addAll(
-                Gson().fromJson(
-                    downloadedImagesJson, object : TypeToken<List<DownloadedImage>>() {}.type
-                )
-            )
-        }
-    }
+//    init {
+//        // Tải hình ảnh đã tải xuống từ SharedPreferences
+//        val prefs = context.getSharedPreferences("my_prefs", Context.MODE_PRIVATE)
+//        val downloadedImagesJson = prefs.getString("downloaded_images", "")
+//        if (downloadedImagesJson != null && downloadedImagesJson.isNotEmpty()) {
+//            downloadedImages.addAll(
+//                Gson().fromJson(
+//                    downloadedImagesJson, object : TypeToken<List<DownloadedImage>>() {}.type
+//                )
+//            )
+//        }
+//    }
 
     inner class ImageViewHolder(val itembinding: ItemIconBinding) :
         RecyclerView.ViewHolder(itembinding.root) {
@@ -64,10 +65,27 @@ class ImageAdapter(var context: Context, var listImages: MutableList<Image>) :
 
         fun bind(image: Image) {
             val blurTransformation: Transformation<Bitmap> = BlurTransformation(25, 3)
+//            val downloadedImage = downloadedImages.find { it.fileName == image.url }
 
-            val downloadedImage = downloadedImages.find { it.fileName == image.url }
+
+            if (Util.isFileExisted(image.fileName)) {
+                itembinding.dowload.visibility = View.GONE
+
+            } else {
+                itembinding.dowload.visibility = View.VISIBLE
+            }
+
+            if (selectedPosition == adapterPosition) {
+                itembinding.imageViewload.visibility = View.VISIBLE
+                itembinding.imageViewBlur.visibility = View.VISIBLE
+            } else {
+                itembinding.imageViewload.visibility = View.GONE
+                itembinding.imageViewBlur.visibility = View.GONE
+            }
+
             Glide.with(itembinding.root).load(image.url).into(itembinding.imgcCoverPhoto)
-            itembinding.imageViewload.visibility = View.GONE
+
+
 
             Log.d("III", "itembinding.textView2.text = image.url : " + image.url)
 
@@ -77,11 +95,12 @@ class ImageAdapter(var context: Context, var listImages: MutableList<Image>) :
                 val cornerSize = 14.dpToPx(itembinding.root.context)
                 val shapeAppearanceModel =
                     itembinding.imgcCoverPhoto.shapeAppearanceModel.toBuilder()
+
                         //bo góc trên và dưới ở bên phải
                         .setTopRightCornerSize(cornerSize.toFloat())
                         .setBottomRightCornerSize(cornerSize.toFloat()).build()
                 itembinding.imgcCoverPhoto.shapeAppearanceModel = shapeAppearanceModel
-
+                itembinding.imageViewBlur.shapeAppearanceModel = shapeAppearanceModel
             } else if (((position + 1) % 6 == 1)) {
                 val cornerSize = 14.dpToPx(itembinding.root.context)
                 val shapeAppearanceModel =
@@ -90,54 +109,40 @@ class ImageAdapter(var context: Context, var listImages: MutableList<Image>) :
                         .setTopLeftCornerSize(cornerSize.toFloat())
                         .setBottomLeftCornerSize(cornerSize.toFloat()).build()
                 itembinding.imgcCoverPhoto.shapeAppearanceModel = shapeAppearanceModel
+                itembinding.imageViewBlur.shapeAppearanceModel = shapeAppearanceModel
             }
 
-            // Thiết lập MaterialShapeDrawable cho ImageView (Hình dạng vật liệu có thể vẽ)
-            itembinding.imgcCoverPhoto.background = shapeDrawable
             urlList.add(image.url)
 
 
             // click vào ảnh con
             itembinding.imgcCoverPhoto.setOnClickListener {
 
-                if (downloadedImage != null && selectedPosition != position ) {
-                    // Thiết lập độ mờ của ImageView
-                    onItemListener.onClick(adapterPosition, listImages[adapterPosition].url)
+                selectItem(adapterPosition)
+//                if (selectedPosition != position ) {
+//                    // Thiết lập độ mờ của ImageView
+                onItemListener.onClick(adapterPosition, listImages[adapterPosition].url)
+//
+////                    Glide.with(itembinding.root).load(image.url).into(itembinding.imgcCoverPhoto)
+//
+//                    val previousPosition = selectedPosition
+//
+//                    selectedPosition = position
+//
+//                    if (previousPosition != -1) {
+//                        notifyItemChanged(previousPosition)
+//                    }else{
+//
+//                    }
+//
+//                }
 
-                    Glide.with(itembinding.root).load(image.url).apply(
-                        RequestOptions().transforms(
-                            CenterCrop(),
-                            RoundedCorners(8),
-                            if (position == selectedPosition) {
-                                ColorFilterTransformation(Color.argb(204, 255, 255, 255))
-                                BlurTransformation(50, 3)
-                            } else {
-                                blurTransformation
-                            }
-                        )
-                    ).into(itembinding.imgcCoverPhoto)
+                if (!Util.isFileExisted(image.fileName)) {
 
 
-                    val previousPosition = selectedPosition
-                    selectedPosition = position
-                    itembinding.imageViewload.visibility = View.VISIBLE
-                    if (previousPosition != -1) {
-                        notifyItemChanged(previousPosition)
-                    }
+                    // Chưa tải về, đặt hình từ URL và tải về khi nhấp chuột
+                    Glide.with(context).load(image.url).into(itembinding.imgcCoverPhoto)
 
-                }
-            }
-
-            // Kiểm tra nếu hình tải về đã được tải về
-            if (downloadedImage != null) {
-                // Đã tải về, đặt hình từ file
-                Glide.with(context).load(File(downloadedImage.path)).into(itembinding.dowload)
-                itembinding.dowload.visibility = View.VISIBLE
-            } else {
-                // Chưa tải về, đặt hình từ URL và tải về khi nhấp chuột
-                Glide.with(context).load(image.url).into(itembinding.imgcCoverPhoto)
-
-                itembinding.imgcCoverPhoto.setOnClickListener {
                     // ẩn hình download đi
                     itembinding.dowload.visibility = View.VISIBLE
                     // Tải hình về
@@ -150,15 +155,12 @@ class ImageAdapter(var context: Context, var listImages: MutableList<Image>) :
                         .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
                         .setDestinationInExternalPublicDir(
                             Environment.DIRECTORY_PICTURES,
-                            image.url
+                            "MyPic/${image.fileName}"
                         )
-
-//                    val downloadId = downloadManager.enqueue(request)
-//                    Log.d("FGH","downloadId : "+downloadId)
 
                     val downloadId = downloadManager.enqueue(request)
                     listener.onDownloadClick(downloadId)
-
+                    Log.d("EEE", "downloadId : " + downloadId)
 
                     // Thêm hình đã tải vào danh sách
                     val downloadedImage = DownloadedImage(
@@ -167,15 +169,18 @@ class ImageAdapter(var context: Context, var listImages: MutableList<Image>) :
                     )
                     downloadedImages.add(downloadedImage)
 
-                    // Lưu các hình đã tải về vào SharedPreferences
-                    val prefsEditor =
-                        context.getSharedPreferences("my_prefs", Context.MODE_PRIVATE).edit()
-                    val downloadedImagesJson = Gson().toJson(downloadedImages)
-                    prefsEditor.putString("downloaded_images", downloadedImagesJson)
-                    prefsEditor.apply()
-                    notifyDataSetChanged()
+
                 }
+
             }
+        }
+
+        private fun selectItem(position: Int) {
+            if (selectedPosition != RecyclerView.NO_POSITION) {
+                notifyItemChanged(selectedPosition)
+            }
+            selectedPosition = position
+            notifyItemChanged(selectedPosition)
         }
 
         fun Int.dpToPx(context: Context): Int {
@@ -230,5 +235,6 @@ class ImageAdapter(var context: Context, var listImages: MutableList<Image>) :
     }
 
 
-
 }
+
+

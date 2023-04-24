@@ -13,11 +13,28 @@
 
     <com.google.android.material.imageview.ShapeableImageView
         android:visibility="gone"
+        android:alpha="0.5"
+        android:id="@+id/imageViewBlur"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:scaleType="center"
+        android:background="#C59FF4"/>
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:visibility="gone"
         android:id="@+id/imageViewload"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:scaleType="center"
         android:src="@drawable/ic_more" />
+
+    <ProgressBar
+        android:layout_gravity="center"
+        android:id="@+id/imageViewProgressbar"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:scaleType="center"
+        android:visibility="gone" />
 
     <ImageView
         android:layout_marginTop="2dp"

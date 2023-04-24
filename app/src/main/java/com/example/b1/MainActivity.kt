@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity(), ImageAdapter.OnDownloadClickListener {
     private var images = mutableListOf<Image>()
     private var defineXList = mutableListOf<DefineX>()
     private var downloadID: Long = 0L
-    private lateinit var imageItem : Image
+    private var imageItem : Image? = null
 
     companion object {
         const val BASE_URL = "https://mystoragetm.s3.ap-southeast-1.amazonaws.com/"
@@ -86,7 +86,13 @@ class MainActivity : AppCompatActivity(), ImageAdapter.OnDownloadClickListener {
         imageAdapter.setOnItemClick(object : ImageAdapter.OnItemListener {
             override fun onClick(position: Int, url: String) {
                 Log.d("YYY", "position MainActivity: " + position + ", URL : " + url)
-                Glide.with(this@MainActivity).load(images[position].url).into(binding.imgAvatar)
+//                Glide.with(this@MainActivity).load(images[position].url).into(binding.imgAvatar)
+                imageItem = images[position]
+                if ( imageItem != null && Util.isFileExisted(imageItem!!.fileName) ) {
+                    displayImage()
+                }
+
+//
 //                imageItem =
             }
         })
@@ -187,7 +193,12 @@ class MainActivity : AppCompatActivity(), ImageAdapter.OnDownloadClickListener {
             if (action == DownloadManager.ACTION_DOWNLOAD_COMPLETE) {
                 // Lấy ID của download
                 val downloadId = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
-                if (downloadId != -1L) {
+                Log.d("YUY","downloadID"+downloadID)
+                Log.d("YUY","downloadId"+downloadId)
+                if (downloadID==downloadId) {
+
+                    displayImage()
+                    imageAdapter.notifyDataSetChanged()
                     // Xử lý khi download hoàn thành
                     // Ví dụ: hiển thị thông báo hoặc mở file đã tải về
                 }
@@ -195,21 +206,10 @@ class MainActivity : AppCompatActivity(), ImageAdapter.OnDownloadClickListener {
         }
     }
 
-    private val onCompletedDownloadReceiver = object : BroadcastReceiver() {
-        override fun onReceive(p0: Context?, intent: Intent?) {
-            val id = intent?.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
-//            if (downloadID == id) {
-////                displayFrame(photoFrame)
-////                photoFrameAdapter.notifyDataSetChanged()
-            if (downloadID == id) {
-                displayImage()
-//                imageItem =
-            }
-        }
-    }
-
     private fun displayImage() {
-        TODO("Not yet implemented")
+        imageItem?.let {
+            Glide.with(this).load(File(Util.pictureDirectory,it.fileName)).into(binding.imgAvatar)
+        }
     }
 
     override fun onResume() {
