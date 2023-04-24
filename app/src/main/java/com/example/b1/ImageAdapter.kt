@@ -46,27 +46,11 @@ class ImageAdapter(var context: Context, var listImages: MutableList<Image>) :
         return position
     }
 
-//    init {
-//        // Tải hình ảnh đã tải xuống từ SharedPreferences
-//        val prefs = context.getSharedPreferences("my_prefs", Context.MODE_PRIVATE)
-//        val downloadedImagesJson = prefs.getString("downloaded_images", "")
-//        if (downloadedImagesJson != null && downloadedImagesJson.isNotEmpty()) {
-//            downloadedImages.addAll(
-//                Gson().fromJson(
-//                    downloadedImagesJson, object : TypeToken<List<DownloadedImage>>() {}.type
-//                )
-//            )
-//        }
-//    }
-
     inner class ImageViewHolder(val itembinding: ItemIconBinding) :
         RecyclerView.ViewHolder(itembinding.root) {
         private val shapeDrawable = MaterialShapeDrawable()
 
         fun bind(image: Image) {
-            val blurTransformation: Transformation<Bitmap> = BlurTransformation(25, 3)
-//            val downloadedImage = downloadedImages.find { it.fileName == image.url }
-
 
             if (Util.isFileExisted(image.fileName)) {
                 itembinding.dowload.visibility = View.GONE
@@ -76,8 +60,16 @@ class ImageAdapter(var context: Context, var listImages: MutableList<Image>) :
             }
 
             if (selectedPosition == adapterPosition) {
-                itembinding.imageViewload.visibility = View.VISIBLE
-                itembinding.imageViewBlur.visibility = View.VISIBLE
+                if (Util.isFileExisted(image.fileName)){
+                    itembinding.imageViewload.visibility = View.VISIBLE
+                    itembinding.imageViewBlur.visibility = View.VISIBLE
+                    itembinding.imageViewProgressbar.visibility = View.GONE
+                }else{
+                    itembinding.imageViewload.visibility = View.GONE
+                    itembinding.imageViewBlur.visibility = View.GONE
+                    itembinding.imageViewProgressbar.visibility = View.VISIBLE
+                }
+
             } else {
                 itembinding.imageViewload.visibility = View.GONE
                 itembinding.imageViewBlur.visibility = View.GONE
@@ -119,23 +111,7 @@ class ImageAdapter(var context: Context, var listImages: MutableList<Image>) :
             itembinding.imgcCoverPhoto.setOnClickListener {
 
                 selectItem(adapterPosition)
-//                if (selectedPosition != position ) {
-//                    // Thiết lập độ mờ của ImageView
                 onItemListener.onClick(adapterPosition, listImages[adapterPosition].url)
-//
-////                    Glide.with(itembinding.root).load(image.url).into(itembinding.imgcCoverPhoto)
-//
-//                    val previousPosition = selectedPosition
-//
-//                    selectedPosition = position
-//
-//                    if (previousPosition != -1) {
-//                        notifyItemChanged(previousPosition)
-//                    }else{
-//
-//                    }
-//
-//                }
 
                 if (!Util.isFileExisted(image.fileName)) {
 
@@ -144,7 +120,6 @@ class ImageAdapter(var context: Context, var listImages: MutableList<Image>) :
                     Glide.with(context).load(image.url).into(itembinding.imgcCoverPhoto)
 
                     // ẩn hình download đi
-                    itembinding.dowload.visibility = View.VISIBLE
                     // Tải hình về
                     val downloadManager =
                         context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
@@ -168,10 +143,7 @@ class ImageAdapter(var context: Context, var listImages: MutableList<Image>) :
                         image.url
                     )
                     downloadedImages.add(downloadedImage)
-
-
                 }
-
             }
         }
 

@@ -64,7 +64,7 @@ class MainActivity : AppCompatActivity(), ImageAdapter.OnDownloadClickListener {
         imageAdapter = ImageAdapter(this, images)
         binding.recyclerView.adapter = imageAdapter
 
-        textAdapter = TextAdapter(photoFramesList)
+        textAdapter = TextAdapter(this,photoFramesList)
         binding.recyclerViewText.adapter = textAdapter
 
         layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
@@ -90,6 +90,8 @@ class MainActivity : AppCompatActivity(), ImageAdapter.OnDownloadClickListener {
                 imageItem = images[position]
                 if ( imageItem != null && Util.isFileExisted(imageItem!!.fileName) ) {
                     displayImage()
+
+
                 }
 
 //
@@ -209,6 +211,7 @@ class MainActivity : AppCompatActivity(), ImageAdapter.OnDownloadClickListener {
     private fun displayImage() {
         imageItem?.let {
             Glide.with(this).load(File(Util.pictureDirectory,it.fileName)).into(binding.imgAvatar)
+            binding.txtName.text = it.fileName
         }
     }
 

@@ -8,12 +8,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.b1.databinding.ItemIconBinding
 import com.google.android.material.shape.MaterialShapeDrawable
 
-class TextAdapter(var listPhotoFramesX: MutableList<PhotoFramesX>) :
+class TextAdapter(var context : Context, var listPhotoFramesX: MutableList<PhotoFramesX>) :
     RecyclerView.Adapter<TextAdapter.textViewHolder>() {
 
     var selectedPosition = 0
@@ -56,10 +57,13 @@ class TextAdapter(var listPhotoFramesX: MutableList<PhotoFramesX>) :
         Log.d("WER", "search : " + search)
 
         if (position == selectedPosition) {
-            holder.textView.setTextColor(Color.RED);
+            holder.textView.setTextColor(ContextCompat.getColor(context, R.color.purple))
+            holder.textView.setTypeface(null, Typeface.BOLD)
         } else {
-            holder.textView.setTextColor(Color.BLACK);
+            holder.textView.setTextColor(ContextCompat.getColor(context, R.color.purple))
+            holder.textView.setTypeface(null, Typeface.NORMAL)
         }
+
 
     }
 
