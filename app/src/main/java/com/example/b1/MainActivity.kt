@@ -1,24 +1,31 @@
 package com.example.b1
 
+import android.Manifest
 import android.app.DownloadManager
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.*
+import android.content.pm.PackageManager
 import android.database.Cursor
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.Typeface
+import android.media.MediaMetadataRetriever
+import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.os.Handler
+import android.provider.MediaStore
 import android.util.Log
 import android.view.View
+import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.SeekBar
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -36,6 +43,7 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
+import java.text.SimpleDateFormat
 
 class MainActivity : AppCompatActivity(), ImageAdapter.OnDownloadClickListener {
 
@@ -47,7 +55,17 @@ class MainActivity : AppCompatActivity(), ImageAdapter.OnDownloadClickListener {
     private var images = mutableListOf<Image>()
     private var defineXList = mutableListOf<DefineX>()
     private var downloadID: Long = 0L
-    private var imageItem : Image? = null
+    private var imageItem: Image? = null
+
+    private val REQUEST_CODE_READ_EXTERNAL_STORAGE = 1
+    private var mediaPlayer: MediaPlayer? = null
+    private lateinit var play_button: ImageButton
+    private var listSong = mutableListOf<Song>()
+
+
+    private lateinit var title: String
+    private lateinit var singerName: String
+    private lateinit var uris: String
 
     companion object {
         const val BASE_URL = "https://mystoragetm.s3.ap-southeast-1.amazonaws.com/"
@@ -64,7 +82,7 @@ class MainActivity : AppCompatActivity(), ImageAdapter.OnDownloadClickListener {
         imageAdapter = ImageAdapter(this, images)
         binding.recyclerView.adapter = imageAdapter
 
-        textAdapter = TextAdapter(this,photoFramesList)
+        textAdapter = TextAdapter(this, photoFramesList)
         binding.recyclerViewText.adapter = textAdapter
 
         layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
@@ -88,7 +106,7 @@ class MainActivity : AppCompatActivity(), ImageAdapter.OnDownloadClickListener {
                 Log.d("YYY", "position MainActivity: " + position + ", URL : " + url)
 //                Glide.with(this@MainActivity).load(images[position].url).into(binding.imgAvatar)
                 imageItem = images[position]
-                if ( imageItem != null && Util.isFileExisted(imageItem!!.fileName) ) {
+                if (imageItem != null && Util.isFileExisted(imageItem!!.fileName)) {
                     displayImage()
 
 
@@ -172,6 +190,106 @@ class MainActivity : AppCompatActivity(), ImageAdapter.OnDownloadClickListener {
                 Log.d("AAA", "exception : ${t.message}")
             }
         })
+
+
+        mediaPlayer = MediaPlayer()
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            // Nếu đã được cấp quyền truy cập bộ nhớ, lấy danh sách file nhạc
+            getMusicFiles()
+        } else {
+            // Nếu chưa được cấp quyền, yêu cầu cấp quyền truy cập bộ nhớ
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                REQUEST_CODE_READ_EXTERNAL_STORAGE
+            )
+        }
+
+        val retriever = MediaMetadataRetriever()
+        retriever.setDataSource(listSong.get(2).uri) // đường dẫn đến tệp MP3
+        val artwork = retriever.embeddedPicture
+
+        if (artwork != null) {
+            val bitmap = BitmapFactory.decodeByteArray(artwork, 0, artwork.size)
+            binding.imageView2.setImageBitmap(bitmap)
+        } else {
+            // Nếu không có hình ảnh nào nhúng trong tệp MP3
+            // thì bạn có thể đặt một hình ảnh mặc định cho ImageView
+            binding.imageView2.setImageResource(R.drawable.c)
+        }
+
+
+// Khai báo biến để xác định trạng thái của MediaPlayer
+        var isPlaying = false
+
+// Lắng nghe sự kiện khi nút được nhấn
+//        binding.imgbtnPlay.setOnClickListener {
+//            try {
+//                // Nếu nhạc chưa được phát, set datasource, chuẩn bị và bắt đầu phát
+//                if (!isPlaying) {
+//                    mediaPlayer.apply {
+//                        mediaPlayer?.setDataSource(listSong.get(1).uri)
+//                        Log.d("AAW","uri : "+listSong.get(1).uri)
+//                        binding.txtSingerName.text = singerName
+//                        binding.txtSongName.text = title
+//
+//                        mediaPlayer!!.prepare()
+//                        mediaPlayer!!.start()
+//                        setTimeTotal()
+//                    }
+//                    // Set trạng thái đang phát và đổi ảnh nút
+//                    isPlaying = true
+//                    binding.imgbtnPlay.setImageResource(R.drawable.ic_pause)
+//                } else {
+//                    // Nếu nhạc đang phát, pause và đổi ảnh nút
+//                    mediaPlayer!!.pause()
+//                    isPlaying = false
+//                    binding.imgbtnPlay.setImageResource(R.drawable.ic_play)
+//                }
+//
+//            } catch (e: Exception) {
+//                e.message
+//            }
+//        }
+
+        binding.imgbtnPlay.setOnClickListener {
+            try {
+                if (mediaPlayer?.isPlaying == true) {
+                    // Nếu nhạc đang phát, pause và đổi ảnh nút
+                    mediaPlayer!!.pause()
+                    isPlaying = false
+                    binding.imgbtnPlay.setImageResource(R.drawable.ic_play)
+                } else {
+                    // Nếu nhạc chưa được phát hoặc đã tạm dừng, tiếp tục phát hoặc bắt đầu phát lại
+                    mediaPlayer?.apply {
+                        if (currentPosition > 0) {
+//                            binding.txtSingerName.text = singerName
+//                            binding.txtSongName.text = title
+                            start()
+                            setTimeTotal()
+                            updateTime()
+                        } else {
+                            setDataSource(listSong[1].uri)
+                            binding.txtSingerName.text = singerName
+                            binding.txtSongName.text = title
+                            prepare()
+                            start()
+                            setTimeTotal()
+                            updateTime()
+                        }
+                    }
+                    // Set trạng thái đang phát và đổi ảnh nút
+                    isPlaying = true
+                    binding.imgbtnPlay.setImageResource(R.drawable.ic_pause)
+                }
+            } catch (e: Exception) {
+                e.message
+            }
+        }
     }
 
     fun scrollToRelativeCategory() {
@@ -195,9 +313,9 @@ class MainActivity : AppCompatActivity(), ImageAdapter.OnDownloadClickListener {
             if (action == DownloadManager.ACTION_DOWNLOAD_COMPLETE) {
                 // Lấy ID của download
                 val downloadId = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
-                Log.d("YUY","downloadID"+downloadID)
-                Log.d("YUY","downloadId"+downloadId)
-                if (downloadID==downloadId) {
+                Log.d("YUY", "downloadID" + downloadID)
+                Log.d("YUY", "downloadId" + downloadId)
+                if (downloadID == downloadId) {
 
                     displayImage()
                     imageAdapter.notifyDataSetChanged()
@@ -208,9 +326,149 @@ class MainActivity : AppCompatActivity(), ImageAdapter.OnDownloadClickListener {
         }
     }
 
+    private fun getMusicFiles() {
+        val musicFiles = mutableListOf<String>()
+
+//        val musicFilesResource = mutableListOf<Song>()
+        Log.d("AAA", "musicFiles : " + musicFiles)
+        val uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+        val projection = arrayOf(
+            MediaStore.Audio.Media._ID,
+            MediaStore.Audio.Media.DISPLAY_NAME,
+            MediaStore.Audio.Media.ARTIST,
+            MediaStore.Audio.Media.DATA,
+            MediaStore.Images.Media.DATA
+        )
+
+        val sortOrder = "${MediaStore.Audio.Media.DISPLAY_NAME} ASC"
+
+        val selection = "${MediaStore.Audio.Media.IS_MUSIC} != 0"
+
+        val cursor = applicationContext.contentResolver.query(
+            uri,
+            projection,
+            selection,
+            null,
+            sortOrder
+        )
+
+        cursor?.let {
+            val idIndex = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
+            val nameIndex = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME)
+            val singerNameIndex = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
+            val dataUri = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
+            val imageUri =
+                ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, 1)
+
+            while (it.moveToNext()) {
+                val id = it.getLong(idIndex)
+                title = it.getString(nameIndex)
+                singerName = it.getString(singerNameIndex)
+                uris = it.getString(dataUri)
+//                val imageURI = it.getString(imageUri)
+
+
+                listSong.add(Song(title, singerName, uris))
+//                musicFiles.add("$fileName by $artist (ID: $id)")
+
+                Log.d("YYY", "uris : " + uris)
+//                Log.d("EEE","musicFilesResource : "+musicFilesResource)
+            }
+//            musicFilesResource.add(Song(id.toString(),fileName,artist))
+            it.close()
+        }
+
+        // In danh sách tên file nhạc
+        musicFiles.forEach {
+            Log.d("Music", it)
+        }
+
+        // bắt sự kiện trên SeekBak
+        binding.seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {
+
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar) {
+
+            }
+
+            // chạm vào kéo seekBar xong buông ra thì nó sẽ lấy giá trị seekBar cuối cùng khi buông ra
+            override fun onStopTrackingTouch(seekBar: SeekBar) {
+                mediaPlayer!!.seekTo(seekBar.progress)
+            }
+        })
+
+
+    }
+//    private fun upDataTime(){
+//        val handler = Handler()
+//        handler.postDelayed(object : Runnable{
+//
+//            override fun run() {
+//                TODO("Not yet implemented")
+//            }
+//
+//        })
+//    }
+
+//    private fun capNhatThoiGianBaiHat() {
+//        val handler = Handler()
+//        handler.postDelayed(object : Runnable {
+//            override fun run() {
+//                val dinhDangGio = SimpleDateFormat("mm:ss")
+//                textViewTimeStart.text = dinhDangGio.format(mediaPlayer!!.currentPosition)
+//
+//                //update progress skSong
+//                binding.seekBar.progress = mediaPlayer!!.currentPosition
+//
+//                }
+//                handler.postDelayed(this, 500)
+//            }
+//        }, 100)
+//    }
+
+    private fun updateTime() {
+        val handler = Handler()
+        handler.postDelayed(object : Runnable {
+            override fun run() {
+                val dinhDangGio = SimpleDateFormat("mm:ss")
+                binding.txtStart.text = dinhDangGio.format(mediaPlayer!!.currentPosition)
+
+                //update progress skSong
+                binding.seekBar.progress = mediaPlayer!!.currentPosition
+
+                handler.postDelayed(this, 500)
+            }
+        }, 100)
+    }
+
+    private fun setTimeTotal() {
+        // hàm xử lý sự kiện phút và giây
+        val dinhDangGio = SimpleDateFormat("mm:ss")
+        binding.txtEnd.setText(dinhDangGio.format(mediaPlayer!!.duration))
+        // gán SeeBak = tổng thời gian bài hát
+        // tức là gán max của skSong = mediaPlayer.getDuration()
+        binding.seekBar.max = mediaPlayer!!.duration
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_CODE_READ_EXTERNAL_STORAGE && grantResults.isNotEmpty()
+            && grantResults[0] == PackageManager.PERMISSION_GRANTED
+        ) {
+            // Nếu đã được cấp quyền truy cập bộ nhớ, lấy danh sách file nhạc
+            getMusicFiles()
+        }
+    }
+
     private fun displayImage() {
         imageItem?.let {
-            Glide.with(this).load(File(Util.pictureDirectory,it.fileName)).into(binding.imgAvatar)
+            Glide.with(this).load(File(Util.pictureDirectory, it.fileName)).into(binding.imgAvatar)
             binding.txtName.text = it.fileName
         }
     }
@@ -229,4 +487,6 @@ class MainActivity : AppCompatActivity(), ImageAdapter.OnDownloadClickListener {
     override fun onDownloadClick(downloadId: Long) {
 
     }
+
+
 }
