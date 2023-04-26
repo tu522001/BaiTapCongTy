@@ -4,9 +4,10 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.widget.Toast
-import com.example.b1.service.ApplicationClass.ACTION_NEXT
-import com.example.b1.service.ApplicationClass.ACTION_PLAY
-import com.example.b1.service.ApplicationClass.ACTION_PREV
+import com.example.b1.service.ApplicationClass.Companion.ACTION_NEXT
+import com.example.b1.service.ApplicationClass.Companion.ACTION_PLAY
+import com.example.b1.service.ApplicationClass.Companion.ACTION_PREV
+
 
 class NotificationReceiver : BroadcastReceiver() {
 

@@ -5,16 +5,20 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
 
-object ApplicationClass : Application() {
-    const val CHANNEL_ID_1 = "CHANNEL_1"
-    const val CHANNEL_ID_2 = "CHANNEL_2"
-    const val ACTION_NEXT = "NEXT"
-    const val ACTION_PREV = "PREVIOUS"
-    const val ACTION_PLAY = "PLAY"
+class ApplicationClass : Application() {
+    companion object{
+        const val CHANNEL_ID_1 = "CHANNEL_1"
+        const val CHANNEL_ID_2 = "CHANNEL_2"
+        const val ACTION_NEXT = "NEXT"
+        const val ACTION_PREV = "PREVIOUS"
+        const val ACTION_PLAY = "PLAY"
+    }
+
 
     override fun onCreate() {
         super.onCreate()
         creatNotificationChannel()
+
     }
 
     private fun creatNotificationChannel() {

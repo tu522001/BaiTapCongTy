@@ -9,9 +9,9 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import com.bumptech.glide.Glide
 
-class SongAdapter (var listSong : MutableList<Song>) : RecyclerView.Adapter<SongAdapter.MusicViewHolder>() {
+class SongAdapter (var itemSongEventListener: ItemSongEventListener, var listSong : MutableList<Song>) : RecyclerView.Adapter<SongAdapter.MusicViewHolder>() {
 
-    private lateinit var onItemListener: OnItemListener
+//    private lateinit var onItemListener: OnItemListener
 
     inner class MusicViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private var imageView: ImageView
@@ -28,7 +28,7 @@ class SongAdapter (var listSong : MutableList<Song>) : RecyclerView.Adapter<Song
             tvSong.text = song.title
             tvSinger.text = song.singerName
             itemView.setOnClickListener{
-                onItemListener.onClickItem(adapterPosition)
+                itemSongEventListener.onItemClick(adapterPosition)
             }
         }
     }
@@ -47,11 +47,11 @@ class SongAdapter (var listSong : MutableList<Song>) : RecyclerView.Adapter<Song
         return listSong.size
     }
 
-    fun setOnItemClick(onItemListener: OnItemListener) {
-        this.onItemListener = onItemListener
-    }
+//    fun setOnItemClick(onItemListener: OnItemListener) {
+//        this.onItemListener = onItemListener
+//    }
 
-    interface OnItemListener {
-        fun onClickItem(position: Int)
-    }
+//    interface OnItemListener {
+//        fun onClickItem(position: Int)
+//    }
 }
