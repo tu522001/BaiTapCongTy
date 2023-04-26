@@ -31,6 +31,19 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
+
+        <service android:name=".service.MusicService" android:enabled="true"/>
+
+        <receiver android:name=".service.NotificationReceiver"
+            android:enabled="true"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="NEXT"/>
+                <action android:name="PREVIOUS"/>
+                <action android:name="PLAY"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

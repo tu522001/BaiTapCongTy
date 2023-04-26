@@ -4,4 +4,5 @@ data class Song(
     val title: String,
     val singerName: String,
     val uri: String,
+
 )

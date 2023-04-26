@@ -79,6 +79,6 @@ dependencies {
     // bo góc Image bằng cách sử dụng thư viện Cardview
     implementation "androidx.cardview:cardview:1.0.0"
 
-
+    implementation "androidx.legacy:legacy-support-v4:1.0.0"
 
 }

@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-
     <ImageView
         android:id="@+id/imgAvatar"
         android:layout_width="match_parent"
@@ -17,21 +16,20 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewText"
         android:layout_width="0dp"
-        android:layout_height="30dp"
-        android:layout_marginTop="150dp"
+        android:layout_height="20dp"
+        android:layout_marginTop="30dp"
         android:background="@color/white"
         android:orientation="horizontal"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintEnd_toEndOf="parent"
 
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imgAvatar" />
+        app:layout_constraintTop_toBottomOf="@+id/constraintlayout" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView"
@@ -42,7 +40,6 @@
         android:background="#70090909"
         app:cardCornerRadius="8dp"
         app:layout_constraintBottom_toBottomOf="@+id/recyclerView"
-        app:layout_constraintHorizontal_bias="0.238"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/recyclerViewText"
         app:layout_constraintVertical_bias="0.117">
@@ -120,83 +117,95 @@
         app:layout_constraintTop_toTopOf="@+id/imageButton"
         app:layout_constraintVertical_bias="0.395" />
 
-    <ImageView
-        android:id="@+id/imageView2"
-        android:layout_width="65dp"
-        android:layout_height="65dp"
-        android:layout_marginStart="24dp"
-        android:scaleType="fitXY"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/txtSongName"
-        app:srcCompat="@drawable/c" />
-
-    <TextView
-        android:id="@+id/txtEnd"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="TextView"
-        android:textSize="10dp"
-        app:layout_constraintBottom_toTopOf="@+id/seekBar"
-        app:layout_constraintEnd_toEndOf="@+id/imageView2"
-        app:layout_constraintStart_toStartOf="@+id/imageView2"
-        app:layout_constraintTop_toBottomOf="@+id/imageView2" />
-
-    <TextView
-        android:visibility="gone"
-        android:id="@+id/txtStart"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="TextView"
-        android:textSize="10dp"
-        app:layout_constraintBottom_toTopOf="@+id/seekBar"
-        app:layout_constraintEnd_toEndOf="@+id/imageView2"
-        app:layout_constraintStart_toStartOf="@+id/imageView2"
-        app:layout_constraintTop_toBottomOf="@+id/imageView2" />
-
-    <TextView
-        android:id="@+id/txtSongName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="Tên bài hát"
-
-        android:textSize="10dp"
-        app:layout_constraintEnd_toStartOf="@+id/imgbtn_play"
-        app:layout_constraintStart_toEndOf="@+id/imageView2"
-        app:layout_constraintTop_toBottomOf="@+id/imgAvatar" />
-
-    <TextView
-        android:id="@+id/txtSingerName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Tên ca sĩ"
-        android:textSize="10dp"
-        app:layout_constraintEnd_toEndOf="@+id/txtSongName"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/txtSongName"
-        app:layout_constraintTop_toBottomOf="@+id/txtSongName" />
-
-    <ImageButton
-        android:id="@+id/imgbtn_play"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginEnd="40dp"
-        app:layout_constraintBottom_toBottomOf="@+id/txtSingerName"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/txtSongName"
-        app:layout_constraintVertical_bias="1.0"
-        app:srcCompat="@drawable/ic_play" />
-
-    <SeekBar
-        android:id="@+id/seekBar"
-        android:layout_width="297dp"
-        android:layout_height="11dp"
-        app:layout_constraintBottom_toTopOf="@+id/recyclerViewText"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintlayout"
+        android:layout_width="0dp"
+        android:layout_height="120dp"
+        android:layout_marginTop="20dp"
+        android:background="@color/purple_200"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtSingerName"
-        app:layout_constraintVertical_bias="0.73" />
+        app:layout_constraintTop_toBottomOf="@+id/imgAvatar">
+
+        <ImageView
+            android:id="@+id/imgSong"
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:layout_marginStart="28dp"
+            android:layout_marginTop="10dp"
+            android:scaleType="fitXY"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/c" />
+
+        <TextView
+            android:id="@+id/txtEnd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TextView"
+            android:textSize="10dp"
+            app:layout_constraintBottom_toTopOf="@+id/seekBar"
+            app:layout_constraintEnd_toEndOf="@+id/imgSong"
+            app:layout_constraintStart_toStartOf="@+id/imgSong"
+            app:layout_constraintTop_toBottomOf="@+id/imgSong" />
+
+        <TextView
+            android:id="@+id/txtStart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TextView"
+            android:textSize="10dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@+id/seekBar"
+            app:layout_constraintEnd_toEndOf="@+id/imgSong"
+            app:layout_constraintStart_toStartOf="@+id/imgSong"
+            app:layout_constraintTop_toBottomOf="@+id/imgSong" />
+
+        <TextView
+            android:id="@+id/txtSongName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+
+            android:text="Tên bài hát"
+            android:textSize="10dp"
+            app:layout_constraintEnd_toStartOf="@+id/imgbtn_play"
+            app:layout_constraintStart_toEndOf="@+id/imgSong"
+            app:layout_constraintTop_toTopOf="@+id/imgSong" />
+
+        <TextView
+            android:id="@+id/txtSingerName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Tên ca sĩ"
+            android:textSize="10dp"
+            app:layout_constraintBottom_toBottomOf="@+id/imgSong"
+            app:layout_constraintEnd_toEndOf="@+id/txtSongName"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@+id/txtSongName"
+            app:layout_constraintTop_toBottomOf="@+id/txtSongName" />
+
+        <ImageButton
+            android:id="@+id/imgbtn_play"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="56dp"
+            app:layout_constraintBottom_toBottomOf="@+id/txtSingerName"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/txtSongName"
+            app:layout_constraintVertical_bias="0.0"
+            app:srcCompat="@drawable/ic_play" />
+
+        <SeekBar
+            android:id="@+id/seekBar"
+            android:layout_width="299dp"
+            android:layout_height="9dp"
+            android:layout_marginBottom="10dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
