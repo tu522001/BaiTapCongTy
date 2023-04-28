@@ -142,7 +142,7 @@
             android:id="@+id/txtEnd"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="TextView"
+            android:text="00:00"
             android:textSize="10dp"
             app:layout_constraintBottom_toTopOf="@+id/seekBar"
             app:layout_constraintEnd_toEndOf="@+id/imgSong"
