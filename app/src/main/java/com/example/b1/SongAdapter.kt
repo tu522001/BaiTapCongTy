@@ -13,6 +13,11 @@ class SongAdapter (var itemSongEventListener: ItemSongEventListener, var listSon
 
 //    private lateinit var onItemListener: OnItemListener
 
+    fun updateData(newList: MutableList<Song>) {
+        listSong = newList
+        notifyDataSetChanged()
+    }
+
     inner class MusicViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private var imageView: ImageView
         private var tvSong: TextView

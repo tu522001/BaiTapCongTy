@@ -29,9 +29,9 @@ class MusicService : Service() {
         val actionName = intent?.getStringExtra("myAcitonName")
         actionName?.let {
             when (it) {
-                ACTION_PLAY -> actionPlaying?.playClicked()
-                ACTION_NEXT -> actionPlaying?.nextClicked()
-                ACTION_PREV -> actionPlaying?.prevClicked()
+                ACTION_PLAY -> actionPlaying?.playClicked(startId)
+                ACTION_NEXT -> actionPlaying?.nextClicked(startId)
+                ACTION_PREV -> actionPlaying?.prevClicked(startId)
                 else -> {}
             }
         }
