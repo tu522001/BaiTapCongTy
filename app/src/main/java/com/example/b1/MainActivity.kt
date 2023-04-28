@@ -463,11 +463,56 @@ class MainActivity : AppCompatActivity(), ImageAdapter.OnDownloadClickListener, 
     }
 
     override fun nextClicked(position: Int) {
+        // Tăng vị trí của bài hát lên 1
+        currentSongIndex = (currentSongIndex + 1) % listSong.size
+
+        try {
+            mediaPlayer?.apply {
+                reset()
+                setDataSource(listSong[currentSongIndex].uri)
+                binding.txtSingerName.text = singerName
+                binding.txtSongName.text = title
+                prepare()
+                start()
+                setTimeTotal()
+                updateTime()
+            }
+
+            // Set trạng thái đang phát và đổi ảnh nút
+            binding.imgbtnPlay.setImageResource(R.drawable.ic_pause)
+            showNotification(R.drawable.ic_pause, currentSongIndex) // Sử dụng biến toàn cục
+        } catch (e: Exception) {
+            e.message
+        }
 
     }
 
     override fun prevClicked(position: Int) {
-
+        try {
+            if (mediaPlayer?.isPlaying == true) {
+                mediaPlayer!!.pause()
+                showNotification(R.drawable.ic_play, currentSongIndex)
+            }
+            currentSongIndex = if (currentSongIndex > 0) {
+                currentSongIndex - 1
+            } else {
+                listSong.size - 1
+            }
+            mediaPlayer?.apply {
+                reset()
+                setDataSource(listSong[currentSongIndex].uri)
+                binding.txtSingerName.text = listSong[currentSongIndex].singerName
+                binding.txtSongName.text = listSong[currentSongIndex].title
+                prepare()
+                start()
+                setTimeTotal()
+                updateTime()
+            }
+            binding.imgbtnPlay.setImageResource(R.drawable.ic_pause)
+            showNotification(R.drawable.ic_pause, currentSongIndex)
+        } catch (e: Exception) {
+            e.message
+        }
     }
 
     override fun playClicked(position: Int) {
