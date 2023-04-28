@@ -65,6 +65,7 @@ class MainActivity : AppCompatActivity(), ImageAdapter.OnDownloadClickListener, 
     private lateinit var singerName: String
     private lateinit var uris: String
     private lateinit var mediaSession: MediaSessionCompat
+
     // Khai báo biến toàn cục
     var currentSongIndex: Int = -1
 
@@ -201,7 +202,7 @@ class MainActivity : AppCompatActivity(), ImageAdapter.OnDownloadClickListener, 
             bottomSheetDialog!!.setContentView(sheetview)
             Log.d("YYYU", "LIST SONG : " + listSong)
             // Khởi tạo SongAdapter và gán cho ListView
-            songAdapter = SongAdapter(this,listSong)
+            songAdapter = SongAdapter(this, listSong)
             sheetview.findViewById<RecyclerView>(R.id.recyclerViewSong).adapter = songAdapter
 
         } else {
@@ -470,19 +471,6 @@ class MainActivity : AppCompatActivity(), ImageAdapter.OnDownloadClickListener, 
     }
 
     override fun playClicked(position: Int) {
-        // hiện thị bài hát trong file
-//        val retriever = MediaMetadataRetriever()
-//        retriever.setDataSource(listSong.get(position).uri) // đường dẫn đến tệp MP3
-//        val artwork = retriever.embeddedPicture
-//        if (artwork != null) {
-//            val bitmap = BitmapFactory.decodeByteArray(artwork, 0, artwork.size)
-//            binding.imgSong.setImageBitmap(bitmap)
-//            Log.d("QQWQ", "binding.imgSong.setImageBitmap(bitmap) : ")
-//        } else {
-//            // Nếu không có hình ảnh nào nhúng trong tệp MP3
-//            // thì bạn có thể đặt một hình ảnh mặc định cho ImageView
-//            binding.imgSong.setImageResource(R.drawable.c)
-//        }
 
         try {
             if (mediaPlayer?.isPlaying == true) {
@@ -505,7 +493,8 @@ class MainActivity : AppCompatActivity(), ImageAdapter.OnDownloadClickListener, 
                         start()
                         setTimeTotal()
                         updateTime()
-                        currentSongIndex = position // Lưu vị trí bài hát đang phát vào biến toàn cục
+                        currentSongIndex =
+                            position // Lưu vị trí bài hát đang phát vào biến toàn cục
                     }
                 }
                 // Set trạng thái đang phát và đổi ảnh nút
@@ -645,6 +634,8 @@ class MainActivity : AppCompatActivity(), ImageAdapter.OnDownloadClickListener, 
             setDataSource(listSong[position].uri)
             prepare()
             start()
+            setTimeTotal()
+            updateTime()
             binding.txtSingerName.text = listSong[position].singerName
             binding.txtSongName.text = listSong[position].title
             binding.imgbtnPlay.setImageResource(R.drawable.ic_pause)
